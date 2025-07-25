@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WOO Simulation Test</title>
+</head>
+<body>
+    <h1>Testing WOO Simulation</h1>
+    
+    <!-- Essential elements for testing -->
+    <div>
+        <button id="startButton">Start Simulation</button>
+        <span id="woofiSwapVolumeValue">Loading...</span>
+        <input type="range" id="woofiSwapVolume" min="10" max="150" value="49.4">
+        <select id="simulationDuration">
+            <option value="36" selected>36 Months</option>
+        </select>
+        <input type="range" id="circulatingSupply" min="1000" max="2000" value="1909.2">
+        <span id="circulatingSupplyValue">Loading...</span>
+        <input type="range" id="initialStaked" min="400" max="800" value="629.5">
+        <span id="initialStakedValue">Loading...</span>
+        <input type="range" id="woofiTradingFeeRate" min="0.01" max="0.20" step="0.01" value="0.08">
+        <span id="woofiTradingFeeRateValue">Loading...</span>
+        <input type="range" id="autoCompoundRate" min="0" max="100" value="40">
+        <span id="autoCompoundRateValue">Loading...</span>
+        <input type="range" id="affiliateCut" min="0" max="80" value="60">
+        <span id="affiliateCutValue">Loading...</span>
+        <input type="range" id="woofiPerpVolume" min="5" max="100" value="11.3">
+        <span id="woofiPerpVolumeValue">Loading...</span>
+        <input type="range" id="wooxVolume" min="100" max="1000" value="365.9">
+        <span id="wooxVolumeValue">Loading...</span>
+        <input type="range" id="initialWoofiTreasury" min="20" max="60" value="41.8">
+        <span id="initialWoofiTreasuryValue">Loading...</span>
+        <input type="range" id="initialWooxTreasury" min="15" max="50" value="32.5">
+        <span id="initialWooxTreasuryValue">Loading...</span>
+        <input type="range" id="supplyElasticity" min="1" max="20" step="0.5" value="10.0">
+        <span id="supplyElasticityValue">Loading...</span>
+        <input type="range" id="buyingPressureElasticity" min="0.1" max="5" step="0.1" value="1.5">
+        <span id="buyingPressureElasticityValue">Loading...</span>
+        <input type="range" id="buyingPressureDecay" min="1" max="50" value="15">
+        <span id="buyingPressureDecayValue">Loading...</span>
+    </div>
+    
+    <div id="simMonth">0</div>
+    <div id="wooPrice">$0.0000</div>
+    <div id="woofiTreasuryHoldings">0</div>
+    <div id="wooxTreasuryHoldings">0</div>
+    <div id="totalStaked">0</div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/simulation.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+    
+    <script>
+        console.log('=== SIMPLE TEST START ===');
+        
+        // Test basic functionality
+        try {
+            const app = new WOOTokenomicsApp();
+            console.log('App created');
+            
+            app.initialize();
+            console.log('App initialized');
+            
+            // Check slider values after initialization
+            const sliderValues = {};
+            ['woofiSwapVolumeValue', 'circulatingSupplyValue', 'initialStakedValue'].forEach(id => {
+                const el = document.getElementById(id);
+                sliderValues[id] = el ? el.textContent : 'MISSING';
+            });
+            console.log('Slider values after init:', sliderValues);
+            
+            // Test start button click
+            const startButton = document.getElementById('startButton');
+            if (startButton) {
+                console.log('Start button found, testing click...');
+                startButton.click();
+                console.log('Start button clicked');
+            } else {
+                console.log('❌ Start button not found');
+            }
+            
+        } catch (error) {
+            console.log('❌ Test error:', error.message);
+            console.log('❌ Stack:', error.stack);
+        }
+        
+        console.log('=== SIMPLE TEST END ===');
+    </script>
+</body>
+</html>

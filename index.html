@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WOO Tokenomics Simulator V2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Chart.js for analytics charts -->
+</head>
+<body class="bg-neutral-light text-text-primary" style="background-color: var(--neutral-light); color: var(--text-primary);">
+
+    <!-- Dark Mode Toggle -->
+    <button id="darkModeToggle" class="p-2 rounded-lg transition-colors duration-200" style="color: var(--text-secondary);" onmouseover="this.style.backgroundColor='var(--neutral-light)'" onmouseout="this.style.backgroundColor='transparent'" title="Toggle dark mode">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+    <button onclick="app.showDocumentation('overview')" class="p-2 rounded-lg transition-colors duration-200" style="color: var(--text-secondary);" onmouseover="this.style.backgroundColor='var(--neutral-light)'" onmouseout="this.style.backgroundColor='transparent'" title="View documentation">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+    </button>
+
+    <div class="container mx-auto p-4 md:p-6 max-w-full">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-light text-text-primary mb-3" style="color: var(--text-primary); font-weight: 300;">WOO Tokenomics Research Platform</h1>
+            <p class="text-lg text-text-secondary font-light mb-6" style="color: var(--text-secondary);">Enhanced Multi-Model Economic Simulation Environment</p>
+            
+            <!-- MODEL SELECTION -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-6 max-w-2xl mx-auto" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Tokenomics Model Selection</h3>
+                <div class="flex justify-center space-x-8">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="tokenomicsModel" value="v1" class="mr-3" style="transform: scale(1.2);">
+                        <div class="text-left">
+                            <span class="font-medium block" style="color: var(--text-primary);">V1 - Auto-Compound Model</span>
+                            <span class="text-sm" style="color: var(--text-secondary);">80/20 split, staker choice, treasury burn matching</span>
+                        </div>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="tokenomicsModel" value="v2" class="mr-3" checked style="transform: scale(1.2);">
+                        <div class="text-left">
+                            <span class="font-medium block" style="color: var(--text-primary);">V2 - Direct Buyback Model</span>
+                            <span class="text-sm" style="color: var(--text-secondary);">Configurable splits, protocol buyback, USDC rewards</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </header>
+
+        <!-- MODEL DOCUMENTATION MODAL -->
+        <div id="modelDocumentationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto" style="background-color: var(--neutral-white);">
+                    <div class="sticky top-0 bg-white border-b p-6" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-2xl font-bold" style="color: var(--text-primary);">WOO Tokenomics Model Documentation</h2>
+                            <button id="closeModalButton" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">×</button>
+                        </div>
+                        <div class="flex space-x-4 mt-4">
+                            <button class="doc-tab-button active px-4 py-2 rounded-md text-sm font-medium" data-tab="overview" style="background-color: var(--primary-blue); color: white;">Overview</button>
+                            <button class="doc-tab-button px-4 py-2 rounded-md text-sm font-medium" data-tab="v0-system-dynamics" style="color: var(--text-primary); border: 1px solid var(--border-color);">V0 - System Dynamics</button>
+                            <button class="doc-tab-button px-4 py-2 rounded-md text-sm font-medium" data-tab="v0-agent-based" style="color: var(--text-secondary); border: 1px solid var(--border-color); opacity: 0.5;">V0 - Agent Based (Coming Soon)</button>
+                            <button class="doc-tab-button px-4 py-2 rounded-md text-sm font-medium" data-tab="price-modeling" style="color: var(--text-primary); border: 1px solid var(--border-color);">Price Modeling</button>
+                            <button class="doc-tab-button px-4 py-2 rounded-md text-sm font-medium" data-tab="metrics" style="color: var(--text-primary); border: 1px solid var(--border-color);">Key Metrics</button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div id="docContent" class="prose max-w-none" style="color: var(--text-primary);">
+                            <!-- Documentation content will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FOOTER -->
+        <footer class="mt-16 pt-8 border-t text-center" style="border-color: var(--border-color);">
+            <div class="flex items-center justify-center space-x-8 mb-4">
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 rounded-full" style="background-color: var(--success-green);"></div>
+                    <span class="text-sm" style="color: var(--text-secondary);">1 Model Available</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 rounded-full" style="background-color: var(--warning-amber);"></div>
+                    <span class="text-sm" style="color: var(--text-secondary);">1 Approach Active</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 rounded-full" style="background-color: var(--primary-blue);"></div>
+                    <span class="text-sm" style="color: var(--text-secondary);">Research Platform v1.0</span>
+                </div>
+            </div>
+            <p class="text-sm" style="color: var(--text-secondary);">
+                WOO Tokenomics Research Platform • Built for iterative economic modeling and analysis
+            </p>
+        </footer>
+    </div>
+
+            <!-- Current Selection Summary -->
+            <div class="mt-6 pt-4 border-t" style="border-color: var(--border-color);">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm" style="color: var(--text-secondary);">
+                            <span class="font-medium">Current Configuration:</span>
+                            <span id="currentModel" class="ml-2 font-semibold" style="color: var(--primary-blue);">Version 0 - Current System</span>
+                            <span class="mx-2">•</span>
+                            <span id="currentApproach" class="font-semibold" style="color: var(--primary-blue);">System Dynamics</span>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button id="modelDocsButton" class="px-4 py-2 border rounded-md text-sm font-medium transition-colors duration-200 model-docs-btn" style="border-color: var(--primary-blue); color: var(--primary-blue);">
+                            📚 Model Docs
+                        </button>
+                        <button id="exportConfigButton" class="px-4 py-2 border rounded-md text-sm font-medium transition-colors duration-200" style="border-color: var(--border-color); color: var(--text-primary);" onmouseover="this.style.backgroundColor='var(--neutral-light)'" onmouseout="this.style.backgroundColor='transparent'">
+                            Export Config
+                        </button>
+                        <button id="loadConfigButton" class="px-4 py-2 border rounded-md text-sm font-medium transition-colors duration-200" style="border-color: var(--border-color); color: var(--text-primary);" onmouseover="this.style.backgroundColor='var(--neutral-light)'" onmouseout="this.style.backgroundColor='transparent'">
+                            Load Config
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIMULATION INTERFACE -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <!-- CONTROLS PANEL -->
+            <div class="lg:col-span-2 bg-neutral-white rounded-lg shadow-sm border" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6 pb-4 border-b" style="border-color: var(--border-color);">
+                        <h2 class="text-xl font-semibold text-text-primary" style="color: var(--text-primary);">Model Parameters</h2>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 rounded-full" style="background-color: var(--success-green);"></div>
+                            <span class="text-xs font-medium" style="color: var(--success-green);">V0 ACTIVE</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-neutral-white rounded-lg shadow-sm border p-6" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                        <h2 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Simulation Parameters</h2>
+                        
+                        <h3 class="font-semibold text-text-primary mb-4" style="color: var(--text-primary); border-color: var(--border-color);">Trading Volumes</h3>
+                        <div>
+                            <label for="woofiSwapVolume" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                <span>WOOFi Swap Vol (M/day)</span>
+                                <span id="woofiSwapVolumeValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                            </label>
+                            <input type="range" id="woofiSwapVolume" min="10" max="150" step="1" value="49.4" class="mt-2">
+                        </div>
+                        <div>
+                            <label for="woofiPerpVolume" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                <span>WOOFi Perp Vol (M/day)</span>
+                                <span id="woofiPerpVolumeValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                            </label>
+                            <input type="range" id="woofiPerpVolume" min="5" max="100" step="1" value="11.3" class="mt-2">
+                        </div>
+                        <div>
+                            <label for="wooxVolume" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                <span>WOO X Vol (M/day)</span>
+                                <span id="wooxVolumeValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                            </label>
+                            <input type="range" id="wooxVolume" min="100" max="1000" step="10" value="365.9" class="mt-2">
+                        </div>
+
+                        <h3 class="font-semibold text-text-primary mt-6 pt-4 border-t" style="color: var(--text-primary); border-color: var(--border-color);">Staking & Fees</h3>
+                        <div>
+                            <label for="woofiTradingFeeRate" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                <span>Average Trading Fee (%)</span>
+                                <span id="woofiTradingFeeRateValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                            </label>
+                            <input type="range" id="woofiTradingFeeRate" min="0.01" max="0.20" step="0.01" value="0.08" class="mt-2">
+                        </div>
+                        
+                        <!-- V1: Auto-Compound Controls -->
+                        <div class="col-span-2 v1-only" style="display: none;">
+                            <h4 class="text-sm font-semibold mb-3" style="color: var(--text-primary);">V1: Auto-Compound Settings</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="autoCompoundRate" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                        <span>Auto-Compound Adoption Rate (%)</span>
+                                        <span id="autoCompoundRateValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                                    </label>
+                                    <input type="range" id="autoCompoundRate" min="0" max="100" step="1" value="70" class="mt-2">
+                                </div>
+                                <div>
+                                    <label for="woofiStakerShare" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                        <span>WOOFi Staker Share (%)</span>
+                                        <span id="woofiStakerShareValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                                    </label>
+                                    <input type="range" id="woofiStakerShare" min="0" max="100" step="1" value="80" class="mt-2" disabled>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-xs" style="color: var(--text-secondary);">
+                                V1: Fixed 80/20 split between stakers and treasury
+                            </div>
+                        </div>
+                        
+                        <!-- V2: Fee Distribution Controls -->
+                        <div class="col-span-2 v2-only">
+                            <h4 class="text-sm font-semibold mb-3" style="color: var(--text-primary);">V2: Fee Distribution Split</h4>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div>
+                                    <label for="buybackBurnShare" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                        <span>Buyback & Burn (%)</span>
+                                        <span id="buybackBurnShareValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                                    </label>
+                                    <input type="range" id="buybackBurnShare" min="0" max="100" step="1" value="50" class="mt-2">
+                                </div>
+                                <div>
+                                    <label for="stakerShare" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                        <span>Stakers (USDC) (%)</span>
+                                        <span id="stakerShareValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                                    </label>
+                                    <input type="range" id="stakerShare" min="0" max="100" step="1" value="30" class="mt-2">
+                                </div>
+                                <div>
+                                    <label for="treasuryShare" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                        <span>Treasury (%)</span>
+                                        <span id="treasuryShareValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                                    </label>
+                                    <input type="range" id="treasuryShare" min="0" max="100" step="1" value="20" class="mt-2">
+                                </div>
+                            </div>
+                            <div class="mt-2 text-xs" style="color: var(--text-secondary);">
+                                Total: <span id="feeDistributionTotal" class="font-semibold">100</span>% 
+                                <button id="resetFeeDistribution" class="ml-2 px-2 py-1 text-xs rounded" style="background-color: var(--neutral-light); color: var(--text-primary);">Reset 50/30/20</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="affiliateCut" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                <span>Affiliate/Orderly Cut (% of perp fees only)</span>
+                                <span id="affiliateCutValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                            </label>
+                            <input type="range" id="affiliateCut" min="0" max="80" step="1" value="60" class="mt-2">
+                        </div>
+                        
+                        <!-- V2: WOO X Fee Distribution -->
+                        <div class="col-span-2 v2-only">
+                            <h4 class="text-sm font-semibold mb-3" style="color: var(--text-primary);">V2: WOO X Fee Split</h4>
+                            <div class="grid grid-cols-1 gap-4">
+                                <div>
+                                    <label for="wooxStakerBps" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                        <span>WOO X Stakers (basis points)</span>
+                                        <span id="wooxStakerBpsValue" class="font-semibold" style="color: var(--primary-blue);">0.1 bps (0.001%)</span>
+                                    </label>
+                                    <input type="number" id="wooxStakerBps" min="0" max="100" step="0.1" value="0.1" class="mt-2 px-3 py-2 border rounded-md text-sm" style="border-color: var(--border-color); background-color: var(--neutral-white);">
+                                    <div class="mt-1 text-xs" style="color: var(--text-secondary);">
+                                        Note: 0.1 bps = 0.001%. Remainder goes to WOO X Treasury.
+                                        <button id="resetWooxBps" class="ml-2 px-2 py-1 text-xs rounded" style="background-color: var(--neutral-light); color: var(--text-primary);">Reset to 0.1</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="font-semibold text-text-primary mt-6 pt-4 border-t" style="color: var(--text-primary); border-color: var(--border-color);">Simulation Configuration</h3>
+                        <div>
+                            <label for="simulationDuration" class="block text-sm font-medium text-text-secondary mb-2" style="color: var(--text-secondary);">
+                                Simulation Duration
+                            </label>
+                            <select id="simulationDuration" class="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-primary-blue focus:border-transparent" style="border-color: var(--border-color); background-color: var(--neutral-white);">
+                                <option value="12">12 Months</option>
+                                <option value="24">24 Months</option>
+                                <option value="36" selected>36 Months</option>
+                                <option value="48">48 Months</option>
+                                <option value="60">60 Months</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="circulatingSupply" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                <span>Circulating Supply (M tokens)</span>
+                                <span id="circulatingSupplyValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                            </label>
+                            <input type="range" id="circulatingSupply" min="1000" max="2000" step="10" value="1909.2" class="mt-2">
+                        </div>
+
+                        <h3 class="font-semibold text-text-primary mt-6 pt-4 border-t" style="color: var(--text-primary); border-color: var(--border-color);">Initial State Configuration</h3>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                            <p class="text-xs" style="color: var(--text-secondary);">
+                                <strong>Data Sources:</strong> Staking data from <a href="https://dune.com/woofianalytics/woofi-staking" target="_blank" class="text-blue-600 hover:underline">Dune WOO Staking Dashboard</a>, Treasury data from <a href="https://woo.org/token" target="_blank" class="text-blue-600 hover:underline">woo.org/token</a>
+                            </p>
+                        </div>
+                        <div>
+                            <label for="initialStaked" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                <span>Initial Staked (M tokens)</span>
+                                <span id="initialStakedValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                            </label>
+                            <input type="range" id="initialStaked" min="400" max="800" step="5" value="629.5" class="mt-2">
+                        </div>
+                        <div>
+                            <label for="initialWoofiTreasury" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                <span>WOOFi Treasury (M tokens)</span>
+                                <span id="initialWoofiTreasuryValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                            </label>
+                            <input type="range" id="initialWoofiTreasury" min="20" max="60" step="1" value="41.8" class="mt-2">
+                        </div>
+                        <div>
+                            <label for="initialWooxTreasury" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                <span>WOO X Treasury (M tokens)</span>
+                                <span id="initialWooxTreasuryValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                            </label>
+                            <input type="range" id="initialWooxTreasury" min="15" max="50" step="1" value="32.5" class="mt-2">
+                        </div>
+
+                        <h3 class="font-semibold text-text-primary mt-6 pt-4 border-t" style="color: var(--text-primary); border-color: var(--border-color);">Price Impact Model</h3>
+                        <div>
+                            <label for="supplyElasticity" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                <span>Supply Elasticity</span>
+                                <span id="supplyElasticityValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                            </label>
+                            <input type="range" id="supplyElasticity" min="1" max="20" step="0.5" value="10.0" class="mt-2">
+                        </div>
+                        <div>
+                            <label for="buyingPressureElasticity" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                <span>Buy Pressure Elasticity</span>
+                                <span id="buyingPressureElasticityValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                            </label>
+                            <input type="range" id="buyingPressureElasticity" min="0.1" max="5" step="0.1" value="1.5" class="mt-2">
+                        </div>
+                        <div>
+                            <label for="buyingPressureDecay" class="slider-label text-sm font-medium" style="color: var(--text-secondary);">
+                                <span>Buy Pressure Decay (%/mo)</span>
+                                <span id="buyingPressureDecayValue" class="font-semibold" style="color: var(--primary-blue);"></span>
+                            </label>
+                            <input type="range" id="buyingPressureDecay" min="1" max="50" step="1" value="15" class="mt-2">
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t space-y-3" style="border-color: var(--border-color);">
+                        <button id="startButton" class="w-full text-white font-semibold py-3 px-6 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2" style="background-color: var(--primary-blue); color: var(--neutral-white);" onmouseover="this.style.backgroundColor='var(--primary-blue-light)'" onmouseout="this.style.backgroundColor='var(--primary-blue)'">
+                            <span class="flex items-center justify-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m6-4h1M2 10h1m-1 4h1m18-4h1m-1 4h1"></path>
+                                </svg>
+                                <span id="buttonText">Start Simulation</span>
+                            </span>
+                        </button>
+                        <button id="stopButton" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" disabled>
+                            Stop Simulation
+                        </button>
+                        <div class="flex space-x-2">
+                            <button id="exportButton" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-md border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" style="border-color: var(--border-color);" disabled>
+                                Export CSV
+                            </button>
+                            <button id="resetButton" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-md border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" style="border-color: var(--border-color);">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIMULATION RESULTS -->
+            <div class="lg:col-span-3 space-y-6">
+                <!-- SIMULATION STATUS -->
+                <div class="bg-neutral-white rounded-lg shadow-sm border p-4" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div id="simulationStatus" class="flex items-center space-x-2">
+                                <div class="w-3 h-3 rounded-full" style="background-color: var(--neutral-gray);"></div>
+                                <span class="text-sm font-medium" style="color: var(--text-secondary);">Ready to simulate</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4 text-sm" style="color: var(--text-secondary);">
+                            <span>Progress: <span id="simulationProgress" class="font-medium">0%</span></span>
+                            <span>•</span>
+                            <span>ETA: <span id="simulationETA" class="font-medium">--</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ANNUAL P/V RATIO CARDS -->
+                <div class="bg-neutral-white rounded-lg shadow-sm border p-6 mb-6" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold flex items-center" style="color: var(--text-primary);">
+                            Annual Price-to-Value Distributed Ratios
+                            <span class="info-icon ml-2">
+                                i
+                                <div class="tooltip">Market Cap divided by total annual value distributed. Shows two perspectives: USD Spent (cash flow) and Token Value (current market value of burned tokens). Lower ratios suggest better value relative to rewards.</div>
+                            </span>
+                        </h3>
+                        <div class="text-xs px-2 py-1 rounded" style="background-color: var(--warning-amber); color: white;">Market Cap ÷ Annual Value</div>
+                    </div>
+                    <div id="prRatioCardsContainer" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <!-- P/V ratio cards will be dynamically generated here -->
+                    </div>
+                    <div class="mt-3 text-xs" style="color: var(--text-secondary);">
+                        V2: Shows dual ratios - USD spent (cash flow) vs current token value (market value)
+                    </div>
+                </div>
+
+                <!-- SUPPLY METRICS SECTION -->
+                <div class="bg-neutral-white rounded-lg shadow-sm border p-4 mb-6" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                    <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Supply Overview</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="text-center">
+                            <h4 class="text-xs font-medium uppercase tracking-wide mb-2 flex items-center justify-center" style="color: var(--text-secondary);">
+                                Max Supply
+                                <span class="info-icon">
+                                    i
+                                    <div class="tooltip">Fixed maximum of 3 billion WOO tokens as defined in the WOO whitepaper. This cap cannot be exceeded and provides scarcity framework.</div>
+                                </span>
+                            </h4>
+                            <p id="maxSupply" class="text-lg font-semibold" style="color: var(--neutral-gray);">3,000.0M</p>
+                            <p class="text-xs" style="color: var(--text-secondary);">Fixed Cap</p>
+                        </div>
+                        <div class="text-center">
+                            <h4 class="text-xs font-medium uppercase tracking-wide mb-2 flex items-center justify-center" style="color: var(--text-secondary);">
+                                Total Supply
+                                <span class="info-icon">
+                                    i
+                                    <div class="tooltip">Current total tokens in existence. Decreases permanently when tokens are burned. Calculated as: Initial Total Supply - Cumulative Burned Tokens.</div>
+                                </span>
+                            </h4>
+                            <p id="totalSupply" class="text-lg font-semibold" style="color: var(--primary-blue);">0M</p>
+                            <p class="text-xs" style="color: var(--text-secondary);">Burns Reduce</p>
+                        </div>
+                        <div class="text-center">
+                            <h4 class="text-xs font-medium uppercase tracking-wide mb-2 flex items-center justify-center" style="color: var(--text-secondary);">
+                                Circulating
+                                <span class="info-icon">
+                                    i
+                                    <div class="tooltip">Tokens available for trading (excludes staked tokens). Decreases when tokens are purchased for staking or burned. Key metric for market cap calculations.</div>
+                                </span>
+                            </h4>
+                            <p id="circulatingSupplyDisplay" class="text-lg font-semibold" style="color: var(--accent-teal);">0M</p>
+                            <p class="text-xs" style="color: var(--text-secondary);">Tradeable</p>
+                        </div>
+                        <div class="text-center">
+                            <h4 class="text-xs font-medium uppercase tracking-wide mb-2 flex items-center justify-center" style="color: var(--text-secondary);">
+                                Supply Burned
+                                <span class="info-icon">
+                                    i
+                                    <div class="tooltip">Percentage of max supply permanently burned. Calculated as: (Cumulative Burned Tokens ÷ Max Supply) × 100%. Measures deflationary impact.</div>
+                                </span>
+                            </h4>
+                            <p id="supplyBurnedPercent" class="text-lg font-semibold" style="color: var(--error-red);">0.0%</p>
+                            <p class="text-xs" style="color: var(--text-secondary);">of Max Supply</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KEY METRICS -->
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
+                    <div class="rounded-lg shadow-sm text-center border p-4" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                        <h3 class="text-xs font-medium uppercase tracking-wide mb-2 flex items-center justify-center" style="color: var(--text-secondary);">
+                            Month
+                            <span class="info-icon">
+                                i
+                                <div class="tooltip">Current simulation month. Simulations can run from 12 to 60 months to model different time horizons.</div>
+                            </span>
+                        </h3>
+                        <p id="simMonth" class="text-xl font-semibold" style="color: var(--primary-blue);">0</p>
+                    </div>
+                    <div class="rounded-lg shadow-sm text-center border p-4" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                        <h3 class="text-xs font-medium uppercase tracking-wide mb-2 flex items-center justify-center" style="color: var(--text-secondary);">
+                            WOO Price
+                            <span class="info-icon">
+                                i
+                                <div class="tooltip">WOO token price in USD. Changes based on permanent impact (token burns) and temporary impact (buying pressure) with configurable elasticity parameters.</div>
+                            </span>
+                        </h3>
+                        <p id="wooPrice" class="text-xl font-semibold" style="color: var(--warning-amber);">$0.00</p>
+                    </div>
+                    <div class="rounded-lg shadow-sm text-center border p-4" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                        <h3 class="text-xs font-medium uppercase tracking-wide mb-2 flex items-center justify-center" style="color: var(--text-secondary);">
+                            WOOFi Treasury
+                            <span class="info-icon">
+                                i
+                                <div class="tooltip">WOO tokens held by WOOFi treasury. Receives 20% of WOOFi fees, used for token burns to match auto-compound purchases. Decreases when burns exceed inflows.</div>
+                            </span>
+                        </h3>
+                        <p id="woofiTreasuryHoldings" class="text-xl font-semibold" style="color: var(--primary-blue);">0M</p>
+                    </div>
+                    <div class="rounded-lg shadow-sm text-center border p-4" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                        <h3 class="text-xs font-medium uppercase tracking-wide mb-2 flex items-center justify-center" style="color: var(--text-secondary);">
+                            WOO X Treasury
+                            <span class="info-icon">
+                                i
+                                <div class="tooltip">WOO tokens held by WOO X treasury. Receives 0.9 bps of WOO X volume (90% of 1 bps total fee). Not used for burns, accumulates over time.</div>
+                            </span>
+                        </h3>
+                        <p id="wooxTreasuryHoldings" class="text-xl font-semibold" style="color: var(--secondary-blue);">0M</p>
+                    </div>
+                    <div class="rounded-lg shadow-sm text-center border p-4" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                        <h3 class="text-xs font-medium uppercase tracking-wide mb-2 flex items-center justify-center" style="color: var(--text-secondary);">
+                            Treasury Runway
+                            <span class="info-icon">
+                                i
+                                <div class="tooltip">Months until WOOFi treasury is depleted at current burn rate. Calculated as: WOOFi Treasury Balance ÷ Monthly Burn Rate. Critical sustainability metric.</div>
+                            </span>
+                        </h3>
+                        <p id="treasuryRunway" class="text-xl font-semibold" style="color: var(--accent-teal);">Inf</p>
+                        <p class="text-xs mt-1" style="color: var(--text-secondary);">Months</p>
+                    </div>
+                    <div class="rounded-lg shadow-sm text-center border p-4" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                        <h3 class="text-xs font-medium uppercase tracking-wide mb-2 flex items-center justify-center" style="color: var(--text-secondary);">
+                            Monthly Burned
+                            <span class="info-icon">
+                                i
+                                <div class="tooltip">WOO tokens burned this month through the match & burn mechanism. Equals minimum of (auto-compound demand, WOOFi treasury balance). Creates permanent supply reduction.</div>
+                            </span>
+                        </h3>
+                        <p id="monthlyBurned" class="text-xl font-semibold" style="color: var(--error-red);">0M</p>
+                    </div>
+                    <div class="rounded-lg shadow-sm text-center border p-4" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                        <h3 class="text-xs font-medium uppercase tracking-wide mb-2 flex items-center justify-center" style="color: var(--text-secondary);">
+                            Total Staked
+                            <span class="info-icon">
+                                i
+                                <div class="tooltip">Total WOO tokens currently staked. Increases when stakers auto-compound (buy tokens from market). Not included in circulating supply.</div>
+                            </span>
+                        </h3>
+                        <p id="totalStaked" class="text-xl font-semibold" style="color: var(--success-green);">0M</p>
+                    </div>
+                </div>
+
+                <!-- RESULTS TABLE -->
+                <div class="rounded-lg shadow-sm border p-6" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold" style="color: var(--text-primary);">Simulation Results</h3>
+                        <div class="flex space-x-2">
+                            <button id="exportResultsButton" class="px-3 py-1 border rounded text-xs font-medium transition-colors duration-200" style="border-color: var(--border-color); color: var(--text-secondary);" onmouseover="this.style.backgroundColor='var(--neutral-light)'" onmouseout="this.style.backgroundColor='transparent'">
+                                Export CSV
+                            </button>
+                            <button id="fullScreenTableButton" class="px-3 py-1 border rounded text-xs font-medium transition-colors duration-200" style="border-color: var(--border-color); color: var(--text-secondary);" onmouseover="this.style.backgroundColor='var(--neutral-light)'" onmouseout="this.style.backgroundColor='transparent'">
+                                Full View
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container max-h-[400px] border rounded" style="scrollbar-width: thin; border-color: var(--border-color); background-color: var(--neutral-light);">
+                        <table id="resultsTable" class="w-full text-sm">
+                            <thead>
+                                <tr class="text-xs font-medium uppercase tracking-wide" style="color: var(--text-secondary);">
+                                    <th class="py-3 px-4 text-left border-b" style="border-color: var(--border-color);">Month</th>
+                                    <th class="py-3 px-4 text-right border-b" style="border-color: var(--border-color);">
+                                        <span class="flex items-center justify-end">
+                                            WOO Price
+                                            <span class="info-icon ml-1">
+                                                i
+                                                <div class="tooltip">WOO token price in USD including both permanent (burns) and temporary (buying pressure) impacts.</div>
+                                            </span>
+                                        </span>
+                                    </th>
+                                    <th class="py-3 px-4 text-right border-b" style="border-color: var(--border-color);">
+                                        <span class="flex items-center justify-end">
+                                            Circulating Supply
+                                            <span class="info-icon ml-1">
+                                                i
+                                                <div class="tooltip">Tradeable tokens in circulation (excludes staked tokens).</div>
+                                            </span>
+                                        </span>
+                                    </th>
+                                    <th class="py-3 px-4 text-right border-b" style="border-color: var(--border-color);">
+                                        <span class="flex items-center justify-end">
+                                            Total Staked
+                                            <span class="info-icon ml-1">
+                                                i
+                                                <div class="tooltip">Total WOO tokens currently staked. Increases when stakers auto-compound.</div>
+                                            </span>
+                                        </span>
+                                    </th>
+                                    <th class="py-3 px-4 text-right border-b" style="border-color: var(--border-color);">
+                                        <span class="flex items-center justify-end">
+                                            WOOFi Treasury
+                                            <span class="info-icon ml-1">
+                                                i
+                                                <div class="tooltip">WOO tokens in WOOFi treasury. Receives 20% of WOOFi fees, used for burns.</div>
+                                            </span>
+                                        </span>
+                                    </th>
+                                    <th class="py-3 px-4 text-right border-b" style="border-color: var(--border-color);">
+                                        <span class="flex items-center justify-end">
+                                            WOO X Treasury
+                                            <span class="info-icon ml-1">
+                                                i
+                                                <div class="tooltip">WOO tokens in WOO X treasury. Receives 0.9 bps of WOO X volume.</div>
+                                            </span>
+                                        </span>
+                                    </th>
+                                    <th class="py-3 px-4 text-right border-b" style="border-color: var(--border-color);">
+                                        <span class="flex items-center justify-end">
+                                            Monthly Burned
+                                            <span class="info-icon ml-1">
+                                                i
+                                                <div class="tooltip">Tokens burned this month through treasury match & burn mechanism.</div>
+                                            </span>
+                                        </span>
+                                    </th>
+                                    <th class="py-3 px-4 text-right border-b" style="border-color: var(--border-color);">
+                                        <span class="flex items-center justify-end">
+                                            Staker Fees
+                                            <span class="info-icon ml-1">
+                                                i
+                                                <div class="tooltip">Total USD fees received by stakers from WOOFi (80% of net) + WOO X (0.1 bps).</div>
+                                            </span>
+                                        </span>
+                                    </th>
+                                    <th class="py-3 px-4 text-right border-b" style="border-color: var(--border-color);">
+                                        <span class="flex items-center justify-end">
+                                            Treasury Fees
+                                            <span class="info-icon ml-1">
+                                                i
+                                                <div class="tooltip">Total USD fees received by treasuries: WOOFi (20% of net) + WOO X (0.9 bps).</div>
+                                            </span>
+                                        </span>
+                                    </th>
+                                    <th class="py-3 px-4 text-right border-b" style="border-color: var(--border-color);">
+                                        <span class="flex items-center justify-end">
+                                            Orderly Fees
+                                            <span class="info-icon ml-1">
+                                                i
+                                                <div class="tooltip">USD fees paid to Orderly/affiliates. Only from WOOFi perpetual trading (60% of perp fees).</div>
+                                            </span>
+                                        </span>
+                                    </th>
+                                    <th class="py-3 px-4 text-right border-b" style="border-color: var(--border-color);">
+                                        <span class="flex items-center justify-end">
+                                            Buyback Fees
+                                            <span class="info-icon ml-1">
+                                                i
+                                                <div class="tooltip">V2: USD allocated to buyback & burn program (50% of net WOOFi fees by default). Used for market purchases.</div>
+                                            </span>
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody">
+                                <tr>
+                                    <td colspan="11" class="py-8 text-center" style="color: var(--text-secondary);">No simulation data available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <!-- ANALYTICS CHARTS -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold" style="color: var(--text-primary);">Analytics Dashboard</h3>
+                        <div class="flex space-x-2">
+                            <button id="chartFullScreenButton" class="px-3 py-1 border rounded text-xs font-medium transition-colors duration-200" style="border-color: var(--border-color); color: var(--text-secondary);" onmouseover="this.style.backgroundColor='var(--neutral-light)'" onmouseout="this.style.backgroundColor='transparent'">
+                                Full Screen
+                            </button>
+                            <button id="exportChartsButton" class="px-3 py-1 border rounded text-xs font-medium transition-colors duration-200" style="border-color: var(--border-color); color: var(--text-secondary);" onmouseover="this.style.backgroundColor='var(--neutral-light)'" onmouseout="this.style.backgroundColor='transparent'">
+                                Export All
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="rounded-lg shadow-sm border p-6" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center" style="color: var(--text-primary);">
+                            Treasury & Supply Dynamics
+                            <span class="info-icon ml-2">
+                                i
+                                <div class="tooltip">Tracks WOO token holdings in treasuries, circulating supply, and staked amounts over time. Shows how burns affect treasury balances and supply distribution.</div>
+                            </span>
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="stocksChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="rounded-lg shadow-sm border p-6" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center" style="color: var(--text-primary);">
+                            Price Evolution
+                            <span class="info-icon ml-2">
+                                i
+                                <div class="tooltip">WOO token price over time, influenced by permanent impact (token burns) and temporary impact (buying pressure). Price changes are multiplicative and cumulative.</div>
+                            </span>
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="priceChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="rounded-lg shadow-sm border p-6" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center" style="color: var(--text-primary);">
+                            Monthly Token Flows
+                            <span class="info-icon ml-2">
+                                i
+                                <div class="tooltip">Monthly token burns vs market purchases. Burns remove tokens permanently, while purchases move tokens from circulation to staking. Both flows reduce circulating supply.</div>
+                            </span>
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="flowsChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="rounded-lg shadow-sm border p-6" style="background-color: var(--neutral-white); border-color: var(--border-color);">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center" style="color: var(--text-primary);">
+                            Price Impact Components
+                            <span class="info-icon ml-2">
+                                i
+                                <div class="tooltip">Permanent impact from supply reduction (never decays) vs temporary impact from buying pressure (decays 15% monthly). Both impacts are additive and applied to price each month.</div>
+                            </span>
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="impactChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/simulation.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+    
+    <script>
+        // Initialize app when page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOM loaded, initializing app...');
+            
+            // Check if required libraries are loaded
+            if (typeof Chart === 'undefined') {
+                console.error('❌ Chart.js not loaded');
+                return;
+            } else {
+                console.log('✅ Chart.js loaded, version:', Chart.version);
+            }
+            
+            // Check canvas elements
+            const canvasIds = ['stocksChart', 'priceChart', 'flowsChart', 'impactChart'];
+            canvasIds.forEach(id => {
+                const canvas = document.getElementById(id);
+                if (canvas) {
+                    console.log(`✅ Canvas ${id} found`);
+                } else {
+                    console.error(`❌ Canvas ${id} missing`);
+                }
+            });
+            
+            try {
+                window.app = new WOOTokenomicsApp();
+                console.log('✅ App instance created');
+                
+                window.app.initialize();
+                console.log('✅ App initialized successfully');
+                
+                // Test chart creation after a delay
+                setTimeout(() => {
+                    const chartCount = Object.keys(window.app.chartManager.charts).length;
+                    console.log(`📊 Charts created: ${chartCount} out of 4 expected`);
+                    
+                    // List created charts
+                    Object.keys(window.app.chartManager.charts).forEach(chartId => {
+                        console.log(`✅ Chart created: ${chartId}`);
+                    });
+                    
+                    // Test flow diagram
+                    const flowDiagram = document.getElementById('flowDiagram');
+                    if (flowDiagram && flowDiagram.innerHTML.includes('svg')) {
+                        console.log('✅ Flow diagram created');
+                    } else {
+                        console.log('❌ Flow diagram missing');
+                    }
+                    
+                    // Test a quick simulation update
+                    if (window.app.simulation) {
+                        console.log('🧪 Testing chart update...');
+                        try {
+                            const testState = window.app.simulation.getState();
+                            window.app.chartManager.updateCharts(testState);
+                            console.log('✅ Chart update test passed');
+                        } catch (error) {
+                            console.error('❌ Chart update test failed:', error);
+                        }
+                    }
+                    
+                }, 2000);
+                
+            } catch (error) {
+                console.error('❌ App initialization failed:', error);
+                console.error('Stack trace:', error.stack);
+            }
+        });
+    </script>
+</body>
+</html> 

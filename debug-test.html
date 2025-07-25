@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>V2 Debug Test</title>
+</head>
+<body>
+    <h1>V2 Simulation Debug Test</h1>
+    <button id="runDebugTest">Run Debug Test</button>
+    <pre id="debugOutput"></pre>
+
+    <script src="js/config.js"></script>
+    <script src="js/simulation.js"></script>
+    
+    <script>
+        document.getElementById('runDebugTest').addEventListener('click', () => {
+            const output = document.getElementById('debugOutput');
+            output.textContent = 'Starting debug test...\n';
+            
+            // Create mock controls
+            const mockControls = {
+                woofiSwapVolume: { value: "49.4" },
+                woofiPerpVolume: { value: "11.3" },
+                wooxVolume: { value: "365.9" },
+                buybackBurnShare: { value: "50" },
+                stakerShare: { value: "30" },
+                treasuryShare: { value: "20" },
+                wooxStakerBps: { value: "0.1" },
+                affiliateCut: { value: "60" },
+                woofiTradingFeeRate: { value: "0.08" },
+                supplyElasticity: { value: "10.0" },
+                buyingPressureElasticity: { value: "1.5" },
+                buyingPressureDecay: { value: "15" },
+                simulationDuration: { value: "12" },
+                circulatingSupply: { value: "1909.2" },
+                initialStaked: { value: "629.5" },
+                initialWoofiTreasury: { value: "41.8" },
+                initialWooxTreasury: { value: "32.5" }
+            };
+            
+            const simulation = new WOOSimulation();
+            
+            try {
+                simulation.initialize(mockControls);
+                output.textContent += 'Simulation initialized successfully\n';
+                
+                // Run 12 steps manually
+                for (let i = 0; i < 12; i++) {
+                    const result = simulation.simulationStep();
+                    const state = simulation.simState;
+                    
+                    output.textContent += `Month ${state.month}: Continue=${result}, Price=${state.woo_price.toFixed(4)}\n`;
+                    
+                    if (!result) {
+                        output.textContent += `Simulation stopped at month ${state.month}\n`;
+                        break;
+                    }
+                }
+                
+                output.textContent += 'Debug test completed\n';
+                
+            } catch (error) {
+                output.textContent += `Error: ${error.message}\n`;
+                console.error('Debug test error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

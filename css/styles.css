@@ -1,0 +1,406 @@
+/* Custom styles for WOO Tokenomics Simulation - Corporate Theme */
+
+:root {
+    --primary-blue: #1e40af;
+    --primary-blue-light: #3b82f6;
+    --secondary-blue: #0ea5e9;
+    --accent-teal: #0d9488;
+    --neutral-gray: #6b7280;
+    --neutral-light: #f8fafc;
+    --neutral-white: #ffffff;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --border-color: #e5e7eb;
+    --success-green: #059669;
+    --warning-amber: #d97706;
+    --error-red: #dc2626;
+}
+
+/* Dark mode variables */
+[data-theme="dark"] {
+    --primary-blue: #3b82f6;
+    --primary-blue-light: #60a5fa;
+    --secondary-blue: #38bdf8;
+    --accent-teal: #14b8a6;
+    --neutral-gray: #9ca3af;
+    --neutral-light: #111827;
+    --neutral-white: #1f2937;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --border-color: #374151;
+    --success-green: #10b981;
+    --warning-amber: #f59e0b;
+    --error-red: #ef4444;
+}
+
+body {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Chart container styles */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+.chart-container canvas {
+    position: relative;
+    height: 100% !important;
+    width: 100% !important;
+    max-height: 300px;
+}
+
+/* Ensure proper flow diagram display */
+#flowDiagram {
+    min-height: 320px;
+    display: block;
+    width: 100%;
+}
+
+#flowDiagram svg {
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+}
+
+/* Corporate range slider styling */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+    outline: none;
+    transition: background-color 0.2s ease;
+}
+
+input[type="range"]:hover {
+    background: var(--neutral-gray);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--primary-blue);
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid var(--neutral-white);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    background: var(--primary-blue-light);
+    transform: scale(1.1);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--primary-blue);
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid var(--neutral-white);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+    background: var(--primary-blue-light);
+}
+
+/* Select dropdown styling */
+select {
+    border-color: var(--border-color);
+    background-color: var(--neutral-white);
+    color: var(--text-primary);
+}
+
+select:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+/* Restart button hover effects */
+#restartSimButton:hover {
+    background-color: var(--primary-blue) !important;
+    color: var(--neutral-white) !important;
+}
+
+/* Improved scrollbar styling for tables */
+.overflow-y-auto::-webkit-scrollbar {
+    width: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+    background: var(--neutral-light);
+    border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: var(--neutral-gray);
+}
+
+/* Model and approach selection styling */
+.model-option.active,
+.approach-option.active {
+    background-color: var(--primary-blue);
+    background-opacity: 0.1;
+    border-color: var(--primary-blue);
+}
+
+.model-option:not(.opacity-50):hover,
+.approach-option:not(.opacity-50):hover {
+    background-color: var(--neutral-light);
+}
+
+/* Spinning animation for loading states */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Research platform specific styling */
+.research-status-indicator {
+    transition: all 0.3s ease;
+}
+
+/* Enhanced button styling for research platform */
+button[id*="Button"] {
+    transition: all 0.2s ease-in-out;
+}
+
+button[id*="Button"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Model docs button hover effect */
+.model-docs-btn:hover {
+    background-color: var(--primary-blue) !important;
+    color: white !important;
+}
+
+/* Modal styling */
+.modal-backdrop {
+    backdrop-filter: blur(4px);
+}
+
+/* Documentation tab styling */
+.doc-tab-button:hover:not([style*="opacity"]) {
+    background-color: var(--neutral-light) !important;
+}
+
+.doc-tab-button.active {
+    background-color: var(--primary-blue) !important;
+    color: white !important;
+}
+
+/* Documentation content styling */
+#docContent h1, #docContent h2, #docContent h3, #docContent h4, #docContent h5 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+#docContent p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+#docContent ul, #docContent ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+}
+
+#docContent li {
+    margin-bottom: 0.25rem;
+}
+
+#docContent code {
+    background-color: var(--neutral-light);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+}
+
+/* Dark mode toggle button */
+.dark-mode-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--neutral-white);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode-toggle:hover {
+    background-color: var(--primary-blue);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Dark mode specific adjustments */
+[data-theme="dark"] .bg-gray-50 {
+    background-color: var(--neutral-light) !important;
+}
+
+[data-theme="dark"] .hover\\:bg-gray-50:hover {
+    background-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .text-gray-500 {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .text-gray-700 {
+    color: var(--text-primary) !important;
+}
+
+/* Info icon and tooltip styling */
+.info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--neutral-gray);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: help;
+    margin-left: 4px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.info-icon:hover {
+    background-color: var(--primary-blue);
+    transform: scale(1.1);
+}
+
+.tooltip {
+    position: fixed;
+    bottom: auto;
+    top: auto;
+    left: auto;
+    right: auto;
+    transform: none;
+    background-color: var(--text-primary);
+    color: var(--neutral-white);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    max-width: 300px;
+    white-space: normal;
+    text-align: left;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+    margin-bottom: 8px;
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--text-primary);
+}
+
+.info-icon:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Enhanced tooltip positioning for table context */
+.info-icon {
+    overflow: visible;
+}
+
+/* Ensure table cells don't clip tooltips but maintain table structure */
+th, td {
+    position: relative;
+}
+
+/* Maintain table scrolling while allowing tooltips */
+.table-container {
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+/* Alternative: create tooltip positioning helper */
+.tooltip-container {
+    position: relative;
+    overflow: visible;
+}
+
+/* JavaScript-powered tooltip positioning */
+.tooltip.positioned {
+    position: fixed;
+    z-index: 9999;
+}
+
+/* Dark mode tooltip adjustments */
+[data-theme="dark"] .tooltip {
+    background-color: var(--neutral-white);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .tooltip::after {
+    border-top-color: var(--neutral-white);
+}
+
+/* Responsive tooltip positioning for mobile */
+@media (max-width: 768px) {
+    .tooltip {
+        max-width: 250px;
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+}

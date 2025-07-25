@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chart Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin: 1rem 0;
+            border: 2px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chart Test</h1>
+    
+    <div class="chart-container">
+        <canvas id="testChart"></canvas>
+    </div>
+    
+    <script>
+        console.log('=== CHART TEST START ===');
+        
+        // Test Chart.js availability
+        if (typeof Chart === 'undefined') {
+            console.error('❌ Chart.js not loaded');
+        } else {
+            console.log('✅ Chart.js loaded, version:', Chart.version);
+        }
+        
+        // Test canvas element
+        const canvas = document.getElementById('testChart');
+        if (!canvas) {
+            console.error('❌ Canvas not found');
+        } else {
+            console.log('✅ Canvas found');
+        }
+        
+        // Test context
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            console.error('❌ Could not get 2D context');
+        } else {
+            console.log('✅ Got 2D context');
+        }
+        
+        // Create simple test chart
+        try {
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    datasets: [{
+                        label: 'Test Data',
+                        data: [10, 20, 30, 40, 50],
+                        borderColor: '#3b82f6',
+                        backgroundColor: '#3b82f620'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            console.log('✅ Test chart created successfully');
+        } catch (error) {
+            console.error('❌ Failed to create test chart:', error);
+        }
+        
+        console.log('=== CHART TEST END ===');
+    </script>
+</body>
+</html>

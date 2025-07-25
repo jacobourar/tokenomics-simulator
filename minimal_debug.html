@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html><head><title>Debug</title></head><body>
+<button id="startButton">Start</button>
+<input type="range" id="woofiSwapVolume" value="49.4">
+<span id="woofiSwapVolumeValue">?</span>
+
+<script>
+console.log('=== MINIMAL DEBUG ===');
+
+// Test 1: Basic element access
+const btn = document.getElementById('startButton');
+const slider = document.getElementById('woofiSwapVolume');
+const display = document.getElementById('woofiSwapVolumeValue');
+
+console.log('Button:', !!btn);
+console.log('Slider:', !!slider, slider ? slider.value : 'none');
+console.log('Display:', !!display);
+
+// Test 2: Simple value update
+if (slider && display) {
+    display.textContent = slider.value + 'M';
+    console.log('Updated display to:', display.textContent);
+}
+
+// Test 3: Event listener
+if (slider && display) {
+    slider.addEventListener('input', () => {
+        display.textContent = slider.value + 'M';
+        console.log('Slider changed to:', slider.value);
+    });
+    console.log('Event listener added');
+}
+
+console.log('=== END DEBUG ===');
+</script>
+</body></html>
