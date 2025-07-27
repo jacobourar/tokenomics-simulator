@@ -254,8 +254,14 @@ class UIManager {
             v2Elements.forEach(el => el.style.display = 'block');
         }
         
+        // Clear previous model state and reset ratio displays
+        this.clearModelState();
+        
         // Update P/V ratio cards display based on model
         this.updateRatioCardsForModel(modelVersion);
+        
+        // Update ratio description text based on model
+        this.updateRatioDescription(modelVersion);
         
         // Trigger simulation restart if running
         if (window.app && window.app.simInterval) {
@@ -269,9 +275,54 @@ class UIManager {
      * Update ratio cards display based on model
      */
     updateRatioCardsForModel(modelVersion) {
-        // This will be called when creating new cards
-        // The card creation already handles dual ratios for V2
-        // For V1, we'll show single P/R ratio
+        // Recreate the cards with proper structure for current model
+        const simulationDuration = parseInt(this.controls.simulationDuration.value) || 36;
+        this.createPriceToRevenueCards(simulationDuration);
+    }
+    
+    /**
+     * Update ratio description text based on model
+     */
+    updateRatioDescription(modelVersion) {
+        const descriptionElement = document.getElementById('ratioModelDescription');
+        if (descriptionElement) {
+            if (modelVersion === 'v1') {
+                descriptionElement.textContent = 'V1: Shows single P/R ratio - Market Cap ÷ (USDC + Token Burns + Auto-compound spending)';
+            } else {
+                descriptionElement.textContent = 'V2: Shows dual ratios - USD spent (cash flow) vs current token value (market value)';
+            }
+        }
+    }
+    
+    /**
+     * Clear previous model state when switching models
+     */
+    clearModelState() {
+        // Clear any existing simulation state
+        if (window.app && window.app.simulation) {
+            // Reset simulation state arrays
+            if (window.app.simulation.simState) {
+                window.app.simulation.simState.annual_pr_ratios = [];
+                window.app.simulation.simState.annual_pv_ratios_usd = [];
+                window.app.simulation.simState.annual_pv_ratios_market = [];
+            }
+        }
+        
+        // Reset all ratio displays to '--'
+        const allRatioElements = document.querySelectorAll('[id^="prRatio"], [id^="pvRatio"]');
+        allRatioElements.forEach(element => {
+            element.textContent = '--';
+        });
+        
+        // Reset charts if they exist
+        if (window.app && window.app.charts) {
+            Object.values(window.app.charts).forEach(chart => {
+                if (chart && typeof chart.destroy === 'function') {
+                    chart.destroy();
+                }
+            });
+            window.app.charts = {};
+        }
     }
     
     /**
@@ -413,7 +464,7 @@ class UIManager {
                             Year ${year}
                             <span class="info-icon ml-1">
                                 i
-                                <div class="tooltip">P/R ratio for Year ${year}. Market Cap ÷ (USDC + Burns + Auto-compound) for months ${(year - 1) * 12 + 1}-${year * 12}.</div>
+                                <div class="tooltip">P/R ratio for Year ${year}. Market Cap ÷ (USDC + Current value of burned tokens + Auto-compound USD spending) for months ${(year - 1) * 12 + 1}-${year * 12}. The 3 components: USDC to stakers, burn value, auto-compound spending.</div>
                             </span>
                         </h4>
                         <p id="prRatio${year}" class="text-lg font-semibold" style="color: var(--primary-blue);">--</p>
@@ -551,11 +602,13 @@ class UIManager {
         // Reset table
         this.updateResultsTable({ history: { months: [] } });
         
-        // Reset P/V ratio cards
+        // Reset P/V ratio cards (both V1 and V2)
         const pvCardsUSD = document.querySelectorAll('[id^="pvRatioUSD"]');
         const pvCardsMarket = document.querySelectorAll('[id^="pvRatioMarket"]');
+        const prCards = document.querySelectorAll('[id^="prRatio"]');
         pvCardsUSD.forEach(card => card.textContent = '--');
         pvCardsMarket.forEach(card => card.textContent = '--');
+        prCards.forEach(card => card.textContent = '--');
     }
 
     /**
